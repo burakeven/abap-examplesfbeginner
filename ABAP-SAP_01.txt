@@ -1,0 +1,289 @@
+*&---------------------------------------------------------------------*
+*& Report Z_BEGITIM_001
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT z_begitim_001.
+
+"************Exercises 001: How to define types and data objects**************
+*DATA customer_name(25) TYPE c.
+*TYPES t_name(25) TYPE c.
+*DATA new_customer_name TYPE t_name.
+*
+*DATA vendor_name LIKE customer_name.
+*
+*DATA: BEGIN OF booking,
+*        id(4)       TYPE c,
+*        flight_date TYPE d,
+*        name        LIKE customer_name,
+*      END OF booking.
+*
+*DATA booking_table LIKE booking OCCURS 100.
+
+DATA: customer_name(20) TYPE c.
+TYPES t_name(25) TYPE c.
+DATA new_customer_name TYPE t_name.
+
+DATA vendor_name LIKE customer_name.
+
+DATA: BEGIN OF booking,
+        id(4)       TYPE c,
+        flight_date TYPE d,
+        name        LIKE customer_name,
+      END OF booking.
+
+DATA booking_table LIKE booking OCCURS 100.
+
+
+"*************Exercises 002: A few simple examples****************
+
+DATA: source(10) TYPE c,
+      target     TYPE i.
+MOVE source TO target.
+
+WRITE 'ABAP/4 is easy.'.
+NEW-LINE.
+WRITE 'This text is displayed on a new line.'.
+WRITE / 'After the symbol /, text also appears on a new line.'.
+
+
+IF source = target.
+  WRITE: / 'Fields source and target have the same concent.'.
+ELSE.
+  WRITE: / 'Fields source and target do not have the same content, sorry. Failed.'.
+ENDIF.
+
+
+*-Test-
+DATA: gv_exp1(5) TYPE c,
+      gv_exp2    LIKE gv_exp1.
+
+"WRITE: / gv_exp2. Henuz Move to yapmadigimiz icin gv_exp2 bos durumda.
+
+gv_exp1 = 'Burak'.
+MOVE gv_exp1 TO gv_exp2. "gv_exp1 icini gv_exp2'e kopyaliyoruz.
+WRITE: / gv_exp2, ' gv1, gv2ye kopyalandi.'. "Boylece gv_exp2 gv_exp1 ic bilgilerini alarak yansitilmis oldu.
+
+
+
+IF gv_exp1 = gv_exp2.
+  WRITE: / 'Correct! Puppy of Lion, keep going like that.'.
+ELSE.
+  WRITE: / 'You are failed, check it again.'.
+ENDIF.
+*-Test son.
+WRITE / '****'.
+DO 3 TIMES.
+  WRITE: / 'Selam dostum.'.
+ENDDO.
+WRITE / '****'.
+DATA: a1 TYPE i,
+      a2 TYPE i.
+
+PERFORM calc USING a1
+                   CHANGING a2.
+WRITE / a2.
+*&---------------------------------------------------------------------*
+*& Form CALC
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*&      --> A1
+*&      <-- A2
+*&---------------------------------------------------------------------*
+FORM calc  USING f1 LIKE a1
+                 CHANGING f2 LIKE a2.
+  f2 = f1 + ( f2 + 17 ).
+ENDFORM.
+
+*AT LINE-SELECTION.
+*  WRITE 'This is displayed after double-clicking a line'.
+
+"***************************Working with database tables and internal tables, Kıps ;) ********************************
+*Declaration of a work area for a Dictionary table
+
+*START-OF-SELECTION.
+*TABLES sflight.
+*
+*** Internal table used as snapshot of the database table
+*DATA all_prices LIKE sflight OCCURS 100 WITH HEADER LINE.
+*
+**Reading the entries of the database table into an internal table
+*SELECT * FROM sflight INTO TABLE all_prices.
+*
+**Displaying each line of an internal table
+*LOOP AT all_prices.
+*  WRITE: / all_prices-price.
+*ENDLOOP.
+
+************************* Designing a report / Rapor tasarlama ************************
+* Declaration of a work area for a Dictionary table
+*START-OF-SELECTION.
+*TABLES sflight.
+** Internal table used as snapshot of the database table
+*DATA ALL_prices LIKE sflight OCCURS 100
+* WITH HEADER LINE.
+** Definition of input fields on the report's selection screen
+*SELECT-OPTIONS ARALIK FOR sflight-price.
+** Reading the entries of the database table into an internal table
+*SELECT * FROM sflight INTO TABLE all_prices
+* WHERE PRICE IN ARALIK.
+** Displaying each line of an internal table
+*LOOP AT all_prices.
+* WRITE: / all_prices-price.
+*ENDLOOP.
+
+**********************CHAPTER 3: The Syntaxof ABAP Programs****************************
+*START-OF-SELECTION.
+** Displaying the words 'Customer list' on the screen
+*WRITE / 'Customer list'.
+** Using an addition of the write command
+*WRITE AT /10 'Customer list'. "Bu kelimeleri yana dogru kaydirir. Ornegin bunda yana dogru 10 bosluk birakti.
+** Using single quotation marks within the text of a literal
+*WRITE / 'Customer''s Name'.
+** Here is a comment with an asterisk in the first column
+*WRITE / 'Ms O''Connor'. "This is a comment at the end of the line
+
+*START-OF-SELECTION.
+*DATA TARGET_STRING(40) TYPE C.
+*
+*MOVE 'Source string' TO target_string.
+*WRITE / target_string.
+*
+*WRITE: / 'Customer list', 'Bookings'.
+
+**********************CHAPTER 4: Three approaches to define data objects****************
+
+
+*START-OF-SELECTION.
+** Type flag defines an abstract type
+*TYPES FLAG TYPE C.
+*
+** Field address_flag will allocate space in main memory at runtime
+*DATA ADDRESS_FLAG TYPE FLAG VALUE 'X'.
+*
+** Constants are defined like fields and cannot be changed
+*CONSTANTS: COMPANY_NAME(3) TYPE C VALUE 'SAP',
+* MAX_COUNTER TYPE I VALUE 9999.
+** Using constants to define initial values
+*DATA COUNTER TYPE I VALUE MAX_COUNTER.
+*WRITE: counter, address_flag.
+
+*********************CHAPTER4: Character Types*****************************
+
+* Type c is the default type when no type is specified.
+* Initial value is space, if it is not specified explicitly.
+
+START-OF-SELECTION.
+DATA: name(25) type c,
+      city(25),
+      flag,
+      SINGLE_CHARACTER VALUE 'A'.
+
+* If the field and the initial value have different lengths, the
+* initial value is either truncated or padded with blanks on the right:
+
+DATA LANGUAGE(2) VALUE 'ABAP/4'.
+WRITE / LANGUAGE.
+
+* Maximum length 64KB
+DATA MAX_CHARACTER_FIELD(65535).
+
+* Variables of type n (numeric texts) contain strings of digits
+DATA CUSTOMER_ID(8) TYPE N VALUE '87654321'.
+
+* The default length for a field of type n is 1,
+* and the default initial value is a string of zeros
+DATA ZIP_CODE(5) TYPE N.
+WRITE / ZIP_CODE.
+
+
+**************************CHAPTER 4: NUMBERS*******************************
+
+
+* Decimal handling is supported for packed numbers
+DATA AIRBAG_PRICE TYPE P DECIMALS 2 VALUE '333.22'.
+WRITE / AIRBAG_PRICE.
+
+* Default length of type p fields is 8, and the maximum length is 16,
+* which can represent numbers of up to 31 digits plus the sign
+DATA: PACKED_NORMAL TYPE P,
+ PACKED_16(16) TYPE P.
+WRITE: / packed_normal , PACKED_16.
+
+* The values of floating point numbers can be represented in
+* different ways, but they are all equivalent:
+DATA: F1 TYPE F,
+ F2 TYPE F,
+ F3 TYPE F.
+F1 = 1.
+F2 = '-12.34567'.
+F3 = '-765E04'.
+"O/p:
+*F1 =  1.0000000000000000E+00.
+*F2 = -1.2345670000000000E+01.
+*F3 = -7.6500000000000000E+06.
+
+*************************Chapter 4: Dateand Time**************************
+
+* The initial value of a date field is 00000000.
+DATA TODAY TYPE D.
+
+* The write command formats dates according to personal settings of
+* the end user.
+TODAY = SY-DATUM.
+WRITE /(10) TODAY.
+
+* Using date fields to perform computations
+DATA ULTIMO TYPE D.
+* Set variable to first day of current month.
+ULTIMO = SY-DATUM.
+ULTIMO+6(2) = '01'.
+* Set variable to last day of previous month.
+SUBTRACT 1 FROM ULTIMO. "Burada 1 çıkartıp geçmiş ayın son gününe gelmiş oluyor.
+WRITE / ULTIMO.
+
+* Time fields are type t with the fixed length 6
+* and the format HHMMSS (hours, minutes, and seconds)
+DATA MY_TIME TYPE T.
+WRITE /(8) MY_TIME. "Şu an bende saat gözükmediğinden dolayı 00:00 diyor fakat güncel zamanı gösteren program.
+
+
+************************Chapter 4: Hexadecimal (or binary) data*********************
+
+* Hexadecimal (or binary) data is stored in fields of type x.
+* A type x field of length n contains 2n digits
+* and its output length is also equal to 2n.
+* For example, the bit stream 1111000010001001 can be defined as
+* follows (remind that 1111 = F, 0000 = 0, 1000 = 8, 1001 = 9):
+DATA XSTRING(2) TYPE X VALUE 'F089'.
+WRITE xstring.
+
+************************Chapter 4: Records and Internal Tables*******************
+
+DATA: BEGIN OF CUSTOMER, "Eger bir type belirtilmemisse o degisken belirleme de direkt N olarak gecer.
+ ID(8) TYPE N,
+ NAME(25),
+ TELEPHONE(12),
+ END OF CUSTOMER.
+* Working with the different components and the structure itself
+DATA VENDOR LIKE CUSTOMER.
+CUSTOMER-ID = '87654321'.
+CUSTOMER-NAME = 'Edison'.
+CUSTOMER-TELEPHONE = '111-111-1111'.
+MOVE CUSTOMER TO VENDOR.
+WRITE / VENDOR-NAME.
+* Defining an internal table each entry having the structure of
+* the record customer
+DATA ALL_CUSTOMERS LIKE CUSTOMER OCCURS 100.
+* Using a reference to a non-elementary type.
+TYPES: BEGIN OF PERSONAL_DATA,
+ NAME(25),
+ CITY(25),
+ STREET(30),
+ END OF PERSONAL_DATA.
+DATA PEOPLE TYPE PERSONAL_DATA OCCURS 300.
+* Internal table with a header line, which is used as a default record
+* to hold the record currently being added to the table
+DATA NEW_CUSTOMERS LIKE CUSTOMER OCCURS 100
+ WITH HEADER LINE.
