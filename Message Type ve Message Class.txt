@@ -1,0 +1,51 @@
+*&---------------------------------------------------------------------*
+*& Report ZBK_EGT_0010
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT zbk_egt_0010 MESSAGE-ID ZEGT.
+
+START-OF-SELECTION.
+
+*MESSAGE 'Yo abapper, watch yourself.' TYPE 'S'.
+*MESSAGE 'Yo abapper, watch yourself.' TYPE 'I'.
+*MESSAGE 'Yo abapper, watch yourself.' TYPE 'W'.
+*MESSAGE 'Yo abapper, watch yourself.' TYPE 'E'.
+*MESSAGE 'Yo abapper, watch yourself.' TYPE 'A'.
+*MESSAGE 'Yo abapper, watch yourself.' TYPE 'X'.
+
+*MESSAGE 'Yo abapper, watch yourself.' TYPE 'S' DISPLAY LIKE 'X'.
+*MESSAGE 'Yo abapper, watch yourself.' TYPE 'I' DISPLAY LIKE 'S'.
+*MESSAGE 'Yo abapper, watch yourself.' TYPE 'W'.
+*MESSAGE 'Yo abapper, watch yourself.' TYPE 'E'.
+*MESSAGE 'Yo abapper, watch yourself.' TYPE 'A'.
+*MESSAGE 'Yo abapper, watch yourself.' TYPE 'X'.
+
+
+"& Tek semboller
+" Tek semboller programın lokalinde olusturulan text metinleridir ve programın
+* --... her yerinde kullanılabilir.
+
+"&***************************************
+"Yeni TCODE se91 (message class olusturma)
+"&****************************************
+
+
+*MESSAGE text-000 TYPE 'I'.
+*MESSAGE text-001 TYPE 'S'.
+
+*MESSAGE i000(ZEGT). "Az once olusturulan message class'ının icerisinden 000id'li olani cekerek-..
+"-.. ilerledik ve kullanimi da iste burada goruldugu gibidir.
+*  WRITE: 'Message Tutorial Video.'.
+
+*MESSAGE i001
+
+*MESSAGE i001 WITH 'Persembe'.
+
+DATA: lv_day1(10),
+      lv_day2(10).
+lv_day1 = 'Sali'.
+lv_day2 = 'Cuma'.
+MESSAGE i002 WITH lv_day1 lv_day2.
+
+WRITE: 'Message egt'.
