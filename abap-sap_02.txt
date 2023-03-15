@@ -1,0 +1,104 @@
+*&---------------------------------------------------------------------*
+*& Report Z_BK_EGT_009
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Z_BK_EGT_009.
+
+
+********* Chapter 4: Complex Non-Elementary Types and Data Objects *********
+
+* Nested Records / Ic ice kayitlar
+
+START-OF-SELECTION.
+TYPES: BEGIN OF ADDRESS,
+  CITY(25),
+  STREET(30),
+  END OF ADDRESS,
+  BEGIN OF PERSON,
+    NAME(25),
+    ADDRESS TYPE ADDRESS,
+    END OF PERSON.
+
+DATA RECEIVER TYPE PERSON.
+    RECEIVER-name = 'Burak'.
+    RECEIVER-ADDRESS-CITY = 'Dresden'.
+    RECEIVER-ADDRESS-STREET = 'Main street'.
+
+WRITE: 'Alinan isim: ', RECEIVER-name.
+**&& Nested Internal Tables / Ic ice icsel tablolar
+
+TYPES: BEGIN OF PHONE_FAX_NUMBERS,
+  COUNTRY_CODE(3) TYPE N,
+  AREA_CODE(3) TYPE N,
+  NUMBER(10) TYPE N,
+  END OF phone_fax_numbers,
+  BEGIN OF EMPLOYEE,
+    NAME(25),
+    PHONE TYPE phone_fax_numbers OCCURS 10,
+    FAX TYPE PHONE_FAX_NUMBERS OCCURS 5,
+    END OF employee.
+
+*&
+*&-------- Chapter4: Using system fields ------------
+*&
+
+WRITE: / 'Current Date', SY-DATUM,
+/'Cureent table index', SY-TABIX,
+/'Loop counter', SY-INDEX,
+/'System return code', SY-SUBRC.
+
+*&
+*&-------- Chapter 5: Working with tables from the dictionary --------
+*&
+
+*-* Declaration of a work area for a Dictionary table.
+
+TABLES sflight.
+
+*-* Reading all entries of the database table and displaying each entry.
+
+*SELECT * FROM sflight.
+*WRITE: / sflight-price.
+*ENDSELECT.
+
+*------------------ / Aralik verdirerek price degerlerini getirtme.
+*DATA ALL_prices LIKE sflight OCCURS 100
+* WITH HEADER LINE.
+** Definition of input fields on the report's selection screen
+*SELECT-OPTIONS ARALIK FOR sflight-price.
+** Reading the entries of the database table into an internal table
+*SELECT * FROM sflight INTO TABLE all_prices
+* WHERE PRICE IN ARALIK.
+** Displaying each line of an internal table
+*LOOP AT all_prices.
+* WRITE: / all_prices-price.
+*ENDLOOP.
+*-----------------
+
+*&**********************************************
+*&---------------- Copying fields --------------
+*&**********************************************
+
+*move fields
+DATA: NAME(25),
+      COUNTER TYPE I.
+DATA: SOURCE LIKE NAME,
+      TARGET LIKE SOURCE.
+MOVE: 'Edison' to Name,
+17 to COUNTER.
+MOVE SOURCE TO TARGET.
+
+* Using the compute command(keyword can be omitted) / Hesapla komutunu kullanma.
+
+COMPUTE TARGET = SOURCE. "????????
+TARGET = SOURCE. "???????????
+
+* Concatenating compute commands / Hesaplama komutlarini birlestirme
+DATA: PHONE_1 LIKE SOURCE,
+      PHONE_2 LIKE PHONE_1,
+      PHONE_3 LIKE PHONE_2,
+      PHONE_4 LIKE PHONE_3.
+PHONE_4 = PHONE_3 = phone_2 = phone_1 = source.
+
+WRITE:
