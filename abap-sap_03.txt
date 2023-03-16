@@ -1,0 +1,123 @@
+*&---------------------------------------------------------------------*
+*& Report Z_SELFDOC_01
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT z_selfdoc_01.
+
+"&******************************************************************
+"&---------Chapter 7: Simple examples of field conversion-----------
+"&******************************************************************
+
+"Converting to numbers during computations / Hesaplama sirasinda sayilara donusturme?
+
+DATA: number_1(4) VALUE '1771',
+      number_2(3),
+      result      TYPE i.
+
+WRITE number_1.
+
+number_2 = '500'.
+result = number_1 + number_2.
+WRITE / result.
+
+number_2 = '005'.
+result = number_1 + number_2.
+WRITE / result.
+
+number_2 = '5'.
+result = number_1 + number_2.
+WRITE / result. "Netice de char olarak belirlenmis iki degiskenin integer turunde sonuc vermesi saglanmis oldu.
+"number 2'e 500 dersek ornegin 2271 sonucuna ulasiyoruz.
+
+* Padding character fields with blanks
+DATA: old_customer_name(10) VALUE 'Burak',
+      new_customer_name(25).
+MOVE old_customer_name TO new_customer_name. "Burada ise Move to kullanarak degeri belirtilmemis olan bir degiskenin atamasini baska bir degiskenden aynen kopyalammis olduk.
+WRITE / new_customer_name.
+
+*Calculating dates
+DATA: any_date              TYPE d,
+      same_day_of_next_week TYPE d.
+
+any_date = '19990202'.
+same_day_of_next_week = any_date + 7. "Boylece gune 7 gun daha eklenmis oldu.
+WRITE / same_day_of_next_week. "Belirtilen tarihten bir hafta sonraki tarih gosterilmis oldu.
+
+any_date = '20000228'.
+same_day_of_next_week = any_date + 7. "06.03.2000'e yeni tarihi atamis olduk.
+WRITE / same_day_of_next_week.
+
+"&*************************************************************
+"&--------- Chapter 7: Converting character fields ------------
+"&*************************************************************
+
+* Truncating fields or padding with blanks
+* Alanları kesmek veya bosluklarla doldurmak
+
+DATA: short_name(8),
+      long_name(16).
+MOVE 'Washington' TO: short_name, long_name.
+WRITE: / short_name, long_name.
+"Goruldugu uzere short name 8 karakter oldugundan Washingt'de kaldi digerini tamamlayarak yazdi.
+
+*Take care of intermediate steps / Ara adimlara dikkat
+long_name = short_name = 'Washington'.
+WRITE: / short_name, long_name.
+
+"&***************************************************************
+"&----------- Chapter 7: Converting number fields ---------------
+"&***************************************************************
+
+*Using numeric texts and packed numbers
+DATA: no_employees(4)    TYPE n,
+      no_rooms           TYPE p,
+      employees_per_room TYPE p DECIMALS 2.
+employees_per_room = no_employees / no_rooms.
+
+*P : (packaged number) ondalikli sayi veri tipine aittir. Ancak farki -..
+*.. virgulden sonra kac basamak olacaginin programci tarafindan belirlenmesidir.
+
+*Rounding with integers and packed numbers
+
+DATA: income             TYPE i VALUE 10000,
+      tax                TYPE p DECIMALS 2 VALUE '0.2',
+      net_income         TYPE p DECIMALS 2,
+      rounded_net_income TYPE i.
+
+net_income = income * ( 1 - tax ).
+rounded_net_income = income * ( 1 - tax ).
+WRITE: / net_income, rounded_net_income.
+
+income = '10002'.
+net_income = income * ( 1 - tax ). "Bunu yaptigimizda tam ondalikli degeri ne ise onu gosterir, 2 ondalikli olarak.
+rounded_net_income = income * ( 1 - tax ). "rounded_net_income integer oldugu icin yuvarlar, 8.002 olarak gosterir halbuki gercek sonuc 8.001,60.
+WRITE: / net_income, rounded_net_income.
+
+"&************************************************************
+"&-------------- Chapter 7: Converting date fields -----------
+"&************************************************************
+
+
+*receiving_date / teslim alma tarihi
+*last_admissible_date / son kabul tarihi
+
+*Using the built-in calendar
+data: receiving_date type d,
+      last_admissible_date type d.
+
+receiving_date = '19980223'.
+
+*Burada son kabul tarihini, teslim alim tarihinden itibaren 10 gun sonrasina belirlemis oluyoruz.
+last_admissible_date = receiving_date + 10.
+WRITE / last_admissible_date.
+
+*Ayni sekilde yine bir urun geldigini varsayalim ve bunun teslim tarihini bu sekilde gosterebilmis oluruz. Buna da +10 ekledik.
+receiving_date = '19980305'.
+last_admissible_date = receiving_date + 10.
+WRITE / last_admissible_date.
+
+receiving_date = '20000223'.
+last_admissible_date = receiving_date + 10.
+WRITE / last_admissible_date.
+
