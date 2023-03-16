@@ -80,19 +80,19 @@ employees_per_room = no_employees / no_rooms.
 
 *Rounding with integers and packed numbers
 
-DATA: income             TYPE i VALUE 10000,
-      tax                TYPE p DECIMALS 2 VALUE '0.2',
-      net_income         TYPE p DECIMALS 2,
-      rounded_net_income TYPE i.
-
-net_income = income * ( 1 - tax ).
-rounded_net_income = income * ( 1 - tax ).
-WRITE: / net_income, rounded_net_income.
-
-income = '10002'.
-net_income = income * ( 1 - tax ). "Bunu yaptigimizda tam ondalikli degeri ne ise onu gosterir, 2 ondalikli olarak.
-rounded_net_income = income * ( 1 - tax ). "rounded_net_income integer oldugu icin yuvarlar, 8.002 olarak gosterir halbuki gercek sonuc 8.001,60.
-WRITE: / net_income, rounded_net_income.
+*DATA: income             TYPE i VALUE 10000,
+*      tax                TYPE p DECIMALS 2 VALUE '0.2',
+*      net_income         TYPE p DECIMALS 2,
+*      rounded_net_income TYPE i.
+*
+*net_income = income * ( 1 - tax ).
+*rounded_net_income = income * ( 1 - tax ).
+*WRITE: / net_income, rounded_net_income.
+*
+*income = '10002'.
+*net_income = income * ( 1 - tax ). "Bunu yaptigimizda tam ondalikli degeri ne ise onu gosterir, 2 ondalikli olarak.
+*rounded_net_income = income * ( 1 - tax ). "rounded_net_income integer oldugu icin yuvarlar, 8.002 olarak gosterir halbuki gercek sonuc 8.001,60.
+*WRITE: / net_income, rounded_net_income.
 
 "&************************************************************
 "&-------------- Chapter 7: Converting date fields -----------
@@ -165,9 +165,9 @@ WRITE: / 'Changed ID', previous_customer-identifier.
 " Copying complete internal tables
 
 DATA: BEGIN OF table_line,
-         field_1,
-         field_2 TYPE i,
-       END OF table_line.
+        field_1,
+        field_2 TYPE i,
+      END OF table_line.
 DATA: source_table LIKE table_line OCCURS 100,
       target_table LIKE table_line OCCURS 50.
 MOVE source_table TO target_table.
@@ -176,5 +176,164 @@ table_line-field_2 = 12345.
 WRITE: / 'DATA TYPES TESTI :', table_line-field_2. "Burada yaptigim degisiklik DATA: BEGIN OF table_line, bu kisim onceden TYPES idi ve alt alanlari boyle olunca cikmadi, ondan dolayi bunu DATA'a cevirdim.
 *.. ama boyle yapinca altta olan DATA: source_table LIKE table_line OCCURS 100 kisminda da LIKE yapmak gerekiyor, bu da oneden TYPE idi.
 
+"&***************************************************************
+"&-------- Arithmetic Expression and Mathematical Functions -----
+"&***************************************************************
 
+* Self-explanatory formulas / kendini aciklayici formuller
 
+DATA: a          TYPE p, b LIKE a, x LIKE a, y LIKE a,
+      income     TYPE i, tax TYPE p, net_income TYPE p,
+      alpha      TYPE p.
+y = a * x + b.
+net_income = income * ( 1 - tax ).
+y = x * cos( alpha ).
+
+* Arithmetic expressions
+DATA: black_swans TYPE i,
+      white_swans TYPE i.
+DATA percentage TYPE p DECIMALS 2.
+percentage = black_swans * 100 / ( black_swans + white_swans ).
+
+* Associative law
+DATA: n1 TYPE p, n2 TYPE p, n3 TYPE p, n4 TYPE p, n5 TYPE p.
+n5 = ( ( n1 - ( n2 / n3 ) ) * ( n4 + n1 ) / n5 ).
+n5 = ( n1 - n2 / n3 ) * ( n4 + n1 ) / n5.
+
+* More formulas including mathematical functions
+DATA: w TYPE p, d TYPE i, n TYPE p, q TYPE i, r TYPE p.
+y = x * cos( alpha ).
+a = 1.
+w = exp( b * log( a ) ).
+d = n DIV q.
+
+"&**********************************************
+"& ------ Chapter 7: String Operations ---------
+"&**********************************************
+
+* Concantenating strings without delimiter
+DATA: first_name(25), middle_name(2), last_name(25),
+      full_name(54).
+first_name = 'John'.
+middle_name = 'F. '.
+last_name = 'Kennedy'.
+CONCATENATE first_name middle_name last_name INTO full_name.
+WRITE / full_name.
+
+* Concatenating strings with delimiter
+DATA: directory_1(2), directory_2(10), file_name(10), path(24).
+directory_1 = 'a:'.
+directory_2 = 'programs'.
+CONCATENATE directory_1 directory_2 file_name INTO path SEPARATED BY '\'.
+WRITE / path.
+
+* Splitting strings
+DATA: list(40), name_1(25), name_2(25), name_3(25).
+list = 'Edison,Smith,Young'.
+SPLIT list AT ',' INTO name_1 name_2 name_3.
+WRITE: / name_1, name_2, name_3.
+
+* Splitting strings with result in an internal table
+
+DATA names LIKE name_1 OCCURS 10 WITH HEADER LINE.
+list = 'Edison,Smith,Young,Edwards'.
+SPLIT list AT ',' INTO TABLE names.
+LOOP AT names.
+  WRITE / names.
+ENDLOOP.
+
+* Shifting strings by a fixed number of places
+name_1 = 'Edison'.
+name_2 = 'Smith'.
+name_3 = 'Young'.
+SHIFT name_1. "Ilk harfi atar, kalani yazar.
+SHIFT name_2 BY 3 PLACES. "Soldan 3 harfi kesip atar, kalani yazar.
+SHIFT name_3 RIGHT.
+WRITE: / name_1, name_2, name_3.
+
+* Shifting strings up to a substring
+names = 'Alex Bill Charles Even'.
+SHIFT names UP TO 'Charles'. "Burada ise Charles dahil ondan sonrasini gosterir.
+WRITE / names.
+
+* Shifting strings deleting blanks
+names = 'Joanne__'.
+SHIFT names RIGHT DELETING TRAILING space. "???????
+WRITE / names.
+
+* Replacing and translating characters ing strings
+DATA: string(80),
+      expression(30).
+string = 'Variable: &. The variable &. is substituted later.'.
+REPLACE '&' WITH 'X' INTO string.
+WRITE / string.
+TRANSLATE string USING '&X'.
+WRITE / string.
+expression = 'a ** 2 + b ** 2 = c ** 2'.
+TRANSLATE expression USING 'axbycz'.
+WRITE / expression.
+
+* searching for strings in fields or internal tables
+
+DATA text(100) VALUE 'Texas California New Mexico Louisiana Oregon'.
+SEARCH text FOR 'California'.
+IF sy-subrc NE 0. WRITE 'Not found'. ENDIF.
+SEARCH text FOR 'cAliforniA'.
+IF sy-subrc NE 0. WRITE 'Not found'. ENDIF.
+SEARCH text FOR 'New M'.
+IF sy-subrc NE 0. WRITE 'Not found'. ENDIF. "Hepsi mevcut oldugundan dolayi cikti da bir sey gozukmeyecektir.
+
+* Working with parts of fields
+DATA: s(8) VALUE 'ABCDEFGH',
+      t(8) VALUE '12345678',
+      off1 TYPE i, off2 TYPE i, len1 TYPE i, len2 TYPE i.
+
+off1 = 2.
+len1 = 3.
+off2 = 4.
+len2 = 3.
+WRITE: / 'S+OFF1(LEN1) :', s+off1(len1), 'T+OFF2(LEN2) : ', t+off2(len2).
+MOVE s+off1(len1) TO t+off2(len2).
+WRITE / t.
+
+*&*************************************************
+*& --------- Chapter 7: Special conversions -------
+*&*************************************************
+
+* Converting type c to type n
+
+DATA: scn(4)  VALUE '12x4',
+      t1cn(2) TYPE n,
+      t2cn(6) TYPE n.
+MOVE: scn TO t1cn,
+scn TO t2cn.
+
+WRITE: / t1cn, t2cn.
+
+* Converting type n to type c
+* Converting type n to type c
+DATA: snc(4)  TYPE n VALUE '0124',
+      t1nc(2),
+      t2nc(6).
+MOVE: snc TO t1nc,
+ snc TO t2nc.
+
+WRITE: / t1nc, t2nc.
+
+* Converting type n to type p
+DATA: snp(6)   TYPE n VALUE '012345',
+      t1np(10) TYPE p,
+      t2np(2)  TYPE p.
+MOVE snp TO t1np.
+
+WRITE: / t1np, t2np.
+*move snp to t2np. aktif edildiginde 0 verir.
+
+* Converting type p to type n
+DATA: SPN(4) TYPE P VALUE 124,
+ T1PN(2) TYPE N,
+ T2PN(6) TYPE N.
+MOVE: SPN TO T1PN,
+ SPN TO T2PN.
+WRITE: / t1pn.
+WRITE / 'Program finished'.
