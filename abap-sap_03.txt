@@ -103,8 +103,8 @@ WRITE: / net_income, rounded_net_income.
 *last_admissible_date / son kabul tarihi
 
 *Using the built-in calendar
-data: receiving_date type d,
-      last_admissible_date type d.
+DATA: receiving_date       TYPE d,
+      last_admissible_date TYPE d.
 
 receiving_date = '19980223'.
 
@@ -120,4 +120,61 @@ WRITE / last_admissible_date.
 receiving_date = '20000223'.
 last_admissible_date = receiving_date + 10.
 WRITE / last_admissible_date.
+
+"&*********************************************************
+"&--------- Chapter 7: Copying structured objects ---------
+"&*********************************************************
+
+* Using move-corresponding to copy fields with the same name
+"Ayni ada karsilik gelenlere uygulanacak kod blogu !move-corresponding! konusu. -KRITIK KONU
+
+DATA: BEGIN OF my_customer,
+        id(8)    TYPE n,
+        name(25),
+        city(25),
+      END OF my_customer,
+      BEGIN OF city_of_customer,
+        city     LIKE my_customer-city,
+        text(30),
+        id       LIKE my_customer-id,
+      END OF city_of_customer.
+
+
+my_customer-id = '12345678'.
+city_of_customer-text = 'Old text'.
+MOVE-CORRESPONDING my_customer TO city_of_customer.
+WRITE: / 'Changed ID', city_of_customer-id,
+/ 'Unchanged text', city_of_customer-text.
+
+*Using the move command for structures
+DATA: current_customer LIKE my_customer,
+      BEGIN OF previous_customer,
+        identifier LIKE my_customer-id,
+        name       LIKE my_customer-name,
+        city       LIKE my_customer-city,
+      END OF previous_customer.
+current_customer-id = '22334455'.
+MOVE current_customer TO previous_customer.
+WRITE: / 'Changed ID', previous_customer-identifier.
+
+* Yeni olusturmus oldugumuz ve my_customer gibi davranacak olan current_customer'n da bir id name ve city'si var ve bunların da my_customer içindekiler gibi-..
+*... davranmasını istiyoruz. Bu nedenle like'i kullanip o sekilde davrandiriyoruz. current_customer-id'e bir tanimlama yaptiktan sonra bu guncel musteri oldugu-..
+*.. oldugu icin -ornek olarak bu insan guncel musterilikten eski musterilige geciyorsa, tablo gibi dusun bu sefer eski musteri id'si de ayni olmak zorunda elbette- bu insani-...
+*... eski musteri yapiyoruz. ID'sini de previous customer'a tasimis oluyoruz. Boylece netice de yeni bir previous id olmus oluyor, miras almis gibi.
+
+" Copying complete internal tables
+
+DATA: BEGIN OF table_line,
+         field_1,
+         field_2 TYPE i,
+       END OF table_line.
+DATA: source_table LIKE table_line OCCURS 100,
+      target_table LIKE table_line OCCURS 50.
+MOVE source_table TO target_table.
+
+table_line-field_2 = 12345.
+WRITE: / 'DATA TYPES TESTI :', table_line-field_2. "Burada yaptigim degisiklik DATA: BEGIN OF table_line, bu kisim onceden TYPES idi ve alt alanlari boyle olunca cikmadi, ondan dolayi bunu DATA'a cevirdim.
+*.. ama boyle yapinca altta olan DATA: source_table LIKE table_line OCCURS 100 kisminda da LIKE yapmak gerekiyor, bu da oneden TYPE idi.
+
+
 
