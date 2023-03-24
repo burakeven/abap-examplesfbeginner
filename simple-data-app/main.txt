@@ -1,0 +1,134 @@
+*&---------------------------------------------------------------------*
+*& Report Z_BK_EGT_15
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT z_bk_egt_15.
+
+DATA: gv_ad    TYPE char20,
+      gv_soyad TYPE char30,
+      gv_rad1  TYPE char1,
+      gv_rad2  TYPE xfeld. "Burada xfeld sap'in standart data elementidir. Aynı bir karakter uzunluğundadır ama data sınırlaması vardır.
+
+DATA: gv_cbox1 TYPE xfeld.
+DATA: gv_yas TYPE i.
+DATA: gv_id     TYPE vrm_id,
+      gt_values TYPE vrm_values,
+      gs_value  TYPE vrm_value.
+
+DATA: gv_index TYPE i,
+      ok_code  TYPE sy-ucomm.
+
+DATA: gv_zaman TYPE datum.
+
+DATA: gs_log TYPE zbk_egt_0001.
+
+START-OF-SELECTION.
+  gv_cbox1 = abap_true. "Bu cbox'n default olarak tikli gosterilmesini saglar.
+
+  gv_index = 18.
+  DO 60 TIMES.
+    gs_value-key = gv_index.
+    gs_value-text = gv_index.
+    APPEND gs_value TO gt_values.
+    gv_index = gv_index + 1.
+  ENDDO.
+
+  CALL SCREEN 0100.
+
+*&---------------------------------------------------------------------*
+*& Module STATUS_0100 OUTPUT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+MODULE status_0100 OUTPUT.
+  SET PF-STATUS 'STATUS_0100'.
+* SET TITLEBAR 'xxx'.
+
+*  gv_id = 'GV_YAS'.
+*  gs_value-key = '1'.
+*  gs_value-text = '18 Yaş'.
+*  APPEND gs_value TO gt_values.
+*
+  gv_id = 'GV_YAS'.
+*  gs_value-key = '2'.
+*  gs_value-text = '23 Yaş'.
+*  APPEND gs_value TO gt_values.
+  "içeride tuttugu anahtar yapi
+  "text ekranda gorunecek yapi.
+
+
+  CALL FUNCTION 'VRM_SET_VALUES'
+    EXPORTING
+      id     = gv_id
+      values = gt_values.
+
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0100  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_0100 INPUT.
+  DATA: lv_text TYPE char200.
+  CONCATENATE sy-ucomm 'butonuna basilmistir' INTO lv_text SEPARATED BY space.
+
+*  MESSAGE lv_text TYPE 'I'.
+*  CASE sy-ucomm.
+*    WHEN '&BCK'.
+*      DATA: lv_yasc TYPE char10.
+*      lv_yasc = gv_yas.
+*      MESSAGE lv_yasc TYPE 'I'.
+*      LEAVE TO SCREEN 0.
+  CASE ok_code.
+    WHEN '&BCK'.
+      LEAVE TO SCREEN 0.
+    WHEN '&CLEAR'.
+      PERFORM clear_data.
+
+    WHEN '&SAVE'.
+      PERFORM save_data.
+  ENDCASE.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*& Form CLEAR_DATA
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM clear_data.
+  CLEAR: gv_ad,
+        gv_soyad,
+        gv_yas,
+        gv_cbox1,
+        gv_zaman,
+        gv_rad2.
+  gv_rad1 = abap_true.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form SAVE_DATA
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM save_data .
+  gs_log-ad = gv_ad.
+  gs_log-soyad = gv_soyad.
+  gs_log-cbox = gv_cbox1.
+  gs_log-yas = gv_yas.
+  gs_log-zdate = gv_zaman.
+  IF gv_rad1 EQ abap_true.
+    gs_log-cinsiyet = 'K'.
+  ELSE.
+    gs_log-cinsiyet = 'E'.
+  ENDIF.
+
+  INSERT zbk_egt_0001 FROM gs_log.
+  COMMIT WORK AND WAIT.
+  MESSAGE 'Veriler tabloya kayıt edilmiştir.' TYPE 'I' DISPLAY LIKE 'S'.
+
+ENDFORM.
