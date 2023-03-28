@@ -1,0 +1,110 @@
+*&---------------------------------------------------------------------*
+*& Report Z_BK_EGT_21
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT z_bk_egt_21.
+
+*data: gt_sbook type TABLE OF sbook,
+*      go_salv type ref to cl_salv_table.
+*
+*START-OF-SELECTION.
+*
+*SELECT * UP TO 20 ROWS FROM sbook INTO TABLE gt_sbook. "Ilk yirmi satırı al diyerekten verileri cekiyoruz.
+*
+*cl_salv_table=>factory(
+*
+*  IMPORTING
+*    r_salv_table   = go_salv
+*  CHANGING
+*    t_table        =  gt_sbook
+*).
+*
+*  go_salv->display( ).
+
+DATA: gt_sbook TYPE TABLE OF sbook,
+      go_salv  TYPE REF TO cl_salv_table.
+
+START-OF-SELECTION.
+
+  SELECT * UP TO 20 ROWS FROM sbook INTO TABLE gt_sbook. "Ilk yirmi satırı al diyerekten verileri cekiyoruz.
+
+  cl_salv_table=>factory(
+
+    IMPORTING
+      r_salv_table   = go_salv
+    CHANGING
+      t_table        =  gt_sbook
+  ).
+
+  DATA: lo_display TYPE REF TO cl_salv_display_settings.
+
+  lo_display = go_salv->get_display_settings( ). "display_settings'e baglamis oldum.
+  lo_display->set_list_header( value = 'SALV EGITIM BASLIGI' ). "IS_ ile basliyorsa genellikle TRUE ya da FALSE, get cekme set ekleme.
+
+  lo_display->set_striped_pattern( value = 'X' ).
+
+  "BIR KOLONUN GENISLIGINI OTOMATIK AYARLAMA:
+  DATA: lo_columns TYPE REF TO cl_salv_columns.
+  lo_columns = go_salv->get_columns( ).
+  lo_columns->set_optimize( value = 'X' ).
+
+  "KOLON ADI DEGISME
+  DATA: lo_col TYPE REF TO cl_salv_column.
+  "Hata mesajlarına karsin genellikle bu column konulari try-catch icerisinde yazilir.
+  TRY .
+      lo_col = lo_columns->get_column( columnname = 'INVOICE' ).
+      lo_col->set_long_text( value = 'Yeni Fatura Duzenleyici' ).
+      lo_col->set_medium_text( value = 'Yeni Fatura D' ).
+      lo_col->set_short_text( value = 'Yeni Fat' ).
+    CATCH cx_salv_not_found.
+  ENDTRY.
+
+
+*KOLON GORUNURLUGUNU KAPATMA
+  TRY .
+      lo_col = lo_columns->get_column( columnname = 'MANDT' ).
+      lo_col->set_visible(
+          value = if_salv_c_bool_sap=>false
+      ).
+    CATCH cx_salv_not_found.
+  ENDTRY.
+
+  "TOOLBAR EKLEYIP UZERINDE OYNAMA YAPMA (CAN ALICI BOLUM)
+  DATA: lo_func TYPE REF TO cl_salv_functions.
+  lo_func = go_salv->get_functions( ).
+  lo_func->set_all( abap_true
+*    value = if_salv_c_bool_sap=>true
+  ).
+
+  "ALV UST KISMINA HEADER EKLEMEK
+  DATA: lo_header  TYPE REF TO cl_salv_form_layout_grid,
+        lo_h_label TYPE REF TO cl_salv_form_label,
+        lo_h_flow  TYPE REF TO cl_salv_form_layout_flow.
+
+  CREATE OBJECT lo_header.
+  lo_h_label = lo_header->create_label(
+                 row         = 1
+                 column      = 1
+               ).
+  lo_h_label->set_text( value = 'BASLIGIN ILK SATIRI' ).
+  lo_h_flow = lo_header->create_flow(
+                row     = 2
+                column  = 1
+              ).
+  lo_h_flow->create_text(
+    EXPORTING
+      text     = 'Baslik ikinci satir'
+  ).
+  go_salv->set_top_of_list( value = lo_header ).
+
+"POP-UP SEKLINDE GOSTERME
+  go_salv->set_screen_popup(
+    EXPORTING
+      start_column = 10
+      end_column   = 75
+      start_line   = 5
+      end_line     = 25
+  ).
+
+  go_salv->display( ).
