@@ -21,6 +21,8 @@ DATA: gt_list TYPE TABLE OF gty_list,
 DATA: gt_field_catalog TYPE slis_t_fieldcat_alv,
       gs_field_catalog TYPE slis_fieldcat_alv.
 
+data: gs_layout type SLIS_LAYOUT_ALV.
+
 START-OF-SELECTION.
 
   SELECT sbook~carrid, sbook~connid, sbook~fldate, sflight~price
@@ -95,6 +97,11 @@ START-OF-SELECTION.
 *SELECT * FROM sbook
 *  INNER JOIN sflight ON sflight~connid EQ sbook~customid INTO TABLE gt_list.
 
+gs_layout-window_titlebar = 'YENI TEST REUSE ALV'. "Adi ustunde title-bar atar.
+gs_layout-zebra = abap_true. "Satir renkleri zebra desenini aldi.
+gs_layout-colwidth_optimize = abap_true. "Sistematik sekilde satir ici uzunluklara gore genislikleri belirler.
+"gs_layout-edit = abap_true. "Tiklanilabilir yapar, tum hucre icleri beyaz olur.
+
   CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
     EXPORTING
 *     I_INTERFACE_CHECK                 = ' '
@@ -110,7 +117,7 @@ START-OF-SELECTION.
 *     I_BACKGROUND_ID                   = ' '
 *     I_GRID_TITLE                      =
 *     I_GRID_SETTINGS                   =
-*     IS_LAYOUT   =
+     IS_LAYOUT   = gs_layout
       it_fieldcat = gt_field_catalog
 *     IT_EXCLUDING                      =
 *     IT_SPECIAL_GROUPS                 =
