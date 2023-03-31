@@ -1,12 +1,12 @@
 *&---------------------------------------------------------------------*
-*& Report Z_BK_EGT_22
+*& Report ZB_REUSE
 *&---------------------------------------------------------------------*
 *&
 *&---------------------------------------------------------------------*
-REPORT z_bk_egt_22.
+REPORT ZB_REUSE.
 
-INCLUDE z_bk_egt_22_top.
-INCLUDE z_bk_egt_22_frm.
+INCLUDE zb_reuse_top.
+INCLUDE zb_reuse_frm.
 
 START-OF-SELECTION.
 
